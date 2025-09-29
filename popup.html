@@ -2,18 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Tab Summarizer</title>
+  <title>Smart Tab Organizer</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Tab Summaries</h1>
-      <input type="search" id="search-bar" placeholder="Search across tabs...">
+  <div class="sidebar">
+    <header class="sidebar-header">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 3h18v18H3V3zm2 2v14h14V5H5z" fill="currentColor"/>
+          <path d="M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z" fill="currentColor"/>
+        </svg>
+        <span> Smart Tab Organizer</span>
+      </div>
+      <button id="toggle-view" class="icon-btn" title="Toggle View">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
     </header>
-    <main id="tabs-list">
-      <p class="loading">Loading tab summaries...</p>
+
+    <div class="search-container">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+        <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <input type="search" id="search-bar" placeholder="Search tabs and topics...">
+    </div>
+
+    <div class="view-controls">
+      <button id="sort-btn" class="control-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6h18M3 12h12M3 18h6" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        Sort
+      </button>
+      <button id="group-btn" class="control-btn active">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+          <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+          <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+          <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        Group
+      </button>
+    </div>
+
+    <div class="stats-bar">
+      <span id="tab-count">0 tabs</span>
+      <span id="topic-count">0 topics</span>
+    </div>
+
+    <main id="tabs-container">
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Organizing your tabs...</p>
+      </div>
     </main>
+
+    <footer class="sidebar-footer">
+      <button id="close-all-btn" class="footer-btn danger">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        Close All
+      </button>
+      <button id="export-btn" class="footer-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        Export
+      </button>
+    </footer>
   </div>
   <script src="popup.js"></script>
 </body>
