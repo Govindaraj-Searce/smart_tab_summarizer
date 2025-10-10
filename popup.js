@@ -9,74 +9,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const exportBtn = document.getElementById('export-btn');
 
   let allTabsData = [];
-  let currentView = 'grouped'; // 'grouped' or 'list'
+  let currentView = 'grouped';
   let activeTabId = null;
 
-  // Topic classification logic
-  const topicClassifier = {
-    development: {
-      keywords: ['github', 'stackoverflow', 'code', 'programming', 'developer', 'api', 'documentation', 'tutorial', 'coding', 'javascript', 'python', 'react', 'node', 'development', 'software'],
-      icon: '💻'
-    },
-    research: {
-      keywords: ['research', 'study', 'academic', 'paper', 'article', 'wikipedia', 'scholar', 'journal', 'university', 'education', 'learn', 'course'],
-      icon: '📚'
-    },
-    social: {
-      keywords: ['twitter', 'facebook', 'instagram', 'linkedin', 'social', 'chat', 'message', 'reddit', 'discord', 'telegram', 'whatsapp'],
-      icon: '👥'
-    },
-    entertainment: {
-      keywords: ['youtube', 'netflix', 'spotify', 'music', 'video', 'movie', 'game', 'entertainment', 'stream', 'twitch', 'podcast'],
-      icon: '🎬'
-    },
-    news: {
-      keywords: ['news', 'bbc', 'cnn', 'reuters', 'times', 'post', 'guardian', 'tech crunch', 'hacker news', 'breaking', 'latest'],
-      icon: '📰'
-    },
-    shopping: {
-      keywords: ['amazon', 'shop', 'buy', 'purchase', 'cart', 'price', 'product', 'store', 'retail', 'ebay', 'marketplace'],
-      icon: '🛒'
-    },
-    productivity: {
-      keywords: ['gmail', 'email', 'calendar', 'docs', 'sheets', 'drive', 'office', 'productivity', 'work', 'task', 'project', 'notion', 'slack'],
-      icon: '⚡'
-    }
+  // Topic definitions with icons and colors
+  const topicDefinitions = {
+    development: { icon: '💻', color: '#3b82f6', name: 'Development' },
+    research: { icon: '📚', color: '#8b5cf6', name: 'Research' },
+    social: { icon: '👥', color: '#ec4899', name: 'Social' },
+    entertainment: { icon: '🎬', color: '#f59e0b', name: 'Entertainment' },
+    news: { icon: '📰', color: '#ef4444', name: 'News' },
+    shopping: { icon: '🛒', color: '#10b981', name: 'Shopping' },
+    productivity: { icon: '⚡', color: '#06b6d4', name: 'Productivity' },
+    health: { icon: '💚', color: '#059669', name: 'Health' },
+    finance: { icon: '💰', color: '#0891b2', name: 'Finance' },
+    travel: { icon: '✈️', color: '#7c3aed', name: 'Travel' },
+    other: { icon: '📄', color: '#6b7280', name: 'Other' }
   };
 
-  function classifyTab(tab) {
-    const text = `${tab.title} ${tab.summary} ${tab.url}`.toLowerCase();
-    
-    for (const [topic, data] of Object.entries(topicClassifier)) {
-      if (data.keywords.some(keyword => text.includes(keyword))) {
-        return topic;
-      }
-    }
-    return 'other';
-  }
-
   function organizeTabsByTopic(tabs) {
-    const organized = {
-      development: [],
-      research: [],
-      social: [],
-      entertainment: [],
-      news: [],
-      shopping: [],
-      productivity: [],
-      other: []
-    };
-
+    const organized = {};
+    
     tabs.forEach(tab => {
-      const topic = classifyTab(tab);
-      organized[topic].push(tab);
-    });
-
-    // Remove empty topics
-    Object.keys(organized).forEach(key => {
-      if (organized[key].length === 0) {
-        delete organized[key];
+      const topic = tab.topic || 'other';
+      if (!organized[topic]) {
+        organized[topic] = [];
       }
+      organized[topic].push(tab);
     });
 
     return organized;
@@ -89,26 +48,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const favicon = tab.favIconUrl || 'icons/icon16.png';
     const title = escapeHTML(tab.title || 'Untitled');
-    const summary = escapeHTML(tab.summary || 'No summary available');
+    const url = escapeHTML(new URL(tab.url).hostname);
+    const summary = escapeHTML(tab.summary || 'Summary being generated...');
 
     item.innerHTML = `
-      <img src="${favicon}" class="tab-favicon" alt="" onerror="this.src='icons/icon16.png'">
-      <div class="tab-content">
-        <div class="tab-title">${title}</div>
-        <div class="tab-summary">${summary}</div>
+      <div class="tab-header">
+        <img src="${favicon}" class="tab-favicon" alt="" onerror="this.src='icons/icon16.png'">
+        <div class="tab-content">
+          <div class="tab-title">${title}</div>
+          <div class="tab-url">${url}</div>
+        </div>
+        <div class="tab-actions">
+          <button class="tab-action" title="Pin Tab" data-action="pin">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 4v8l-4 4-4-4V4h8z" fill="currentColor"/>
+              <path d="M12 20v-8" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+          <button class="tab-action danger" title="Close Tab" data-action="close">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="tab-actions">
-        <button class="tab-action" title="Pin Tab" data-action="pin">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 4v8l-4 4-4-4V4h8z" fill="currentColor"/>
-            <path d="M12 20v-8" stroke="currentColor" stroke-width="2"/>
-          </svg>
-        </button>
-        <button class="tab-action danger" title="Close Tab" data-action="close">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2"/>
-          </svg>
-        </button>
+      <div class="tab-summary-container">
+        <div class="tab-summary">${summary}</div>
       </div>
     `;
 
@@ -135,14 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
     group.className = 'topic-group';
     group.dataset.topic = topic;
 
-    const topicData = topicClassifier[topic] || { icon: '📄' };
-    const topicName = topic.charAt(0).toUpperCase() + topic.slice(1);
+    const topicData = topicDefinitions[topic] || topicDefinitions.other;
 
     group.innerHTML = `
-      <div class="topic-header">
+      <div class="topic-header" style="border-left: 4px solid ${topicData.color}">
         <div class="topic-info">
-          <div class="topic-icon ${topic}">${topicData.icon}</div>
-          <span class="topic-title">${topicName}</span>
+          <div class="topic-icon" style="background: ${topicData.color}">${topicData.icon}</div>
+          <span class="topic-title">${topicData.name}</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
           <span class="topic-count">${tabs.length}</span>
@@ -159,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
       tabsContainer.appendChild(createTabElement(tab));
     });
 
-    // Toggle functionality
     group.querySelector('.topic-header').addEventListener('click', () => {
       group.classList.toggle('collapsed');
     });
@@ -234,19 +197,17 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.tabs.update(tab.id, { active: true });
     chrome.windows.update(tab.windowId, { focused: true });
     
-    // Update active state
     document.querySelectorAll('.tab-item').forEach(item => {
       item.classList.remove('active');
     });
     document.querySelector(`[data-tab-id="${tab.id}"]`)?.classList.add('active');
     
     activeTabId = tab.id;
-    window.close(); // Close the popup after switching
+    window.close();
   }
 
   function closeTab(tabId) {
     chrome.tabs.remove(tabId, () => {
-      // Remove from local data and re-render
       allTabsData = allTabsData.filter(tab => tab.id !== tabId);
       renderTabs(allTabsData);
     });
@@ -271,7 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
       tabs: allTabsData.map(tab => ({
         title: tab.title,
         url: tab.url,
-        summary: tab.summary
+        summary: tab.summary,
+        topic: tab.topic
       }))
     };
 
@@ -297,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
         activeTabId = tabs[0].id;
-        // Update active state in UI
         document.querySelectorAll('.tab-item').forEach(item => {
           item.classList.toggle('active', item.dataset.tabId == activeTabId);
         });
@@ -305,7 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Event Listeners
   sortBtn.addEventListener('click', () => {
     currentView = 'list';
     sortBtn.classList.add('active');
@@ -327,23 +287,56 @@ document.addEventListener('DOMContentLoaded', () => {
   closeAllBtn.addEventListener('click', closeAllTabs);
   exportBtn.addEventListener('click', exportTabs);
 
-  // Initialize
+  // Show loading state initially
+  tabsContainer.innerHTML = `
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading tabs...</p>
+    </div>
+  `;
+
   chrome.runtime.sendMessage({ action: "getAllTabs" }, (tabsData) => {
-    if (tabsData) {
-      allTabsData = tabsData;
-      renderTabs(allTabsData);
-      getCurrentActiveTab();
-    } else {
+    console.log("Received tabs data:", tabsData);
+    
+    if (chrome.runtime.lastError) {
+      console.error("Runtime error:", chrome.runtime.lastError);
       tabsContainer.innerHTML = `
         <div class="loading-state">
-          <p>Error loading tabs. Check background script.</p>
+          <p style="color: var(--danger-color); font-weight: 600;">Error: ${chrome.runtime.lastError.message}</p>
+          <p style="margin-top: 10px; font-size: 12px;">Please reload the extension</p>
         </div>
       `;
-      console.error("Received no data from background script. Check for errors in the Service Worker console.");
+      return;
     }
+    
+    if (!tabsData) {
+      console.error("No tabs data received");
+      tabsContainer.innerHTML = `
+        <div class="loading-state">
+          <p style="color: var(--warning-color); font-weight: 600;">No response from background script</p>
+          <p style="margin-top: 10px; font-size: 12px;">Try reloading the extension</p>
+        </div>
+      `;
+      return;
+    }
+    
+    if (tabsData.length === 0) {
+      tabsContainer.innerHTML = `
+        <div class="loading-state">
+          <p>No tabs found</p>
+          <p style="margin-top: 10px; font-size: 12px;">Open some web pages to see them here</p>
+        </div>
+      `;
+      updateStats([], 0);
+      return;
+    }
+    
+    allTabsData = tabsData;
+    console.log(`Rendering ${allTabsData.length} tabs`);
+    renderTabs(allTabsData);
+    getCurrentActiveTab();
   });
 
-  // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       window.close();
@@ -358,7 +351,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Auto-focus search bar
   setTimeout(() => {
     searchBar.focus();
   }, 100);
